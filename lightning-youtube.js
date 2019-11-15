@@ -23,11 +23,35 @@ class LightningYoutube extends HTMLElement {
         .lightning-youtube {
             display: inline-block;
             background-color: #000;
+            cursor: pointer;
+            position: relative;
+        }
+        .lightning-youtube__play-button {
+            width: 90px;
+            height: 60px;
+            background-color: rgba(0, 0, 0, 0.5);
+            box-shadow: 0 0 30px rgba(0, 0, 0, 0.5);
+            z-index: 1;
+            border-radius: 6px;
+            position: absolute;
+        }
+        .lightning-youtube__play-button:before {
+            content: "";
+            border-style: solid;
+            border-width: 15px 0 15px 26px;
+            border-color: transparent transparent transparent #fff;
+        }
+        .lightning-youtube__play-button, .lightning-youtube__play-button:before {
+            top: 50%;
+            left: 50%;
+            transform: translate3d( -50%, -50%, 0 );
+            position: absolute;
         }
         </style>
         
         <div class="lightning-youtube">
             <img class="lightning-youtube__placeholder-image" width="${this.width}" height="${this.height}" loading="lazy" src="https://img.youtube.com/vi/${this.videoId}/maxresdefault.jpg" alt="Youtube Placeholder Image" />
+            <div class="lightning-youtube__play-button"></div>
         </div>
         `;
     }
