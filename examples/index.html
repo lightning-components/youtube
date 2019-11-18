@@ -3,12 +3,21 @@
     <head>
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, minimum-scale=1, initial-scale=1, user-scalable=yes">
-        <title>Example Usage: lightning-youtube</title>
-        <script src="../lightning-youtube.js" async></script>
+        <title>Example Usage: with & without lightning-youtube</title>
     </head>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            display: flex;
+            height: 100vh;
+        }
+        iframe {
+            flex-grow: 1;
+        }
+    </style>
     <body>
-        <h1>Example Usage: lightning-youtube</h1>
-
-        <lightning-youtube data-videoid="dQw4w9WgXcQ"></lightning-youtube>
+        <iframe src="/examples/with.html" frameborder="0"></iframe>
+        <iframe src="/examples/without.html" frameborder="0"></iframe>
     </body>
 </html>
