@@ -1,4 +1,4 @@
-(() => {
+(function() {
     /*
      *
      *     Shadow DOM Template
@@ -55,9 +55,10 @@
      *
      */
     class LightningYoutube extends HTMLElement {
-        static REGEX = new RegExp('https:\/\/www\.youtube\.com\/embed\/([a-zA-Z0-9]+)');
-        static DEFAULT_WIDTH = 560;
-        static DEFAULT_HEIGHT = 315;
+        // using static getter method syntax for backwards compatibility
+        static get REGEX() { return new RegExp('https:\/\/www\.youtube\.com\/embed\/([a-zA-Z0-9]+)'); }
+        static get DEFAULT_WIDTH() { return 560; }
+        static get DEFAULT_HEIGHT() { return 315; }
 
         constructor() {
             super();
@@ -104,7 +105,7 @@
             // get the current lightning-youtube element and replace
             // it with iframe, and we should have a valid youtube iframe embed
             const template = document.createElement('template');
-            template.innerHTML = this.outerHTML.replace(/lightning-youtube/g, 'iframe').trim();
+            template.innerHTML = replaceTag(this);
             const iframe = template.content.firstChild;
 
             // here, we ensure that autoplay is enabled because by the time we insert the
@@ -138,6 +139,24 @@
             }
         }
     }
+
+    /**
+     * Return a string that replaces our lightning- component with the original tag.
+     *
+     * @param element
+     * @returns {string}
+     */
+    var replaceTag = function (element) {
+        return element.outerHTML.replace(/lightning-youtube/g, 'iframe').trim();
+    };
+
+    // check if custom elements are not supported, and fall to showing the original iframe if so
+    if (!('customElements' in window)) {
+        return [].forEach.call(document.querySelectorAll('lightning-youtube'), function (el) {
+            el.outerHTML = replaceTag(el);
+        });
+    }
+
 
     customElements.define('lightning-youtube', LightningYoutube);
 })();
