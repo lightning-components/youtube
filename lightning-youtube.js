@@ -1,4 +1,10 @@
 (() => {
+    /*
+     *
+     *     Shadow DOM Template
+     * ---------------------------
+     *
+     */
     const template = document.createElement('template');
     template.innerHTML = `
 
@@ -39,6 +45,15 @@
 
 `;
 
+
+
+
+    /**
+     *
+     *     Custom Element
+     * ----------------------
+     *
+     */
     class LightningYoutube extends HTMLElement {
         static REGEX = new RegExp('https:\/\/www\.youtube\.com\/embed\/([a-zA-Z0-9]+)');
         static DEFAULT_WIDTH = 560;
@@ -47,26 +62,30 @@
         constructor() {
             super();
 
-            this.assertNoscriptIsOnlyChildNode();
             this.assertValidYoutubeSource();
 
-            // here, we are going to store the exact iframe supplied to us, so that we can
-            // use it later when we replace the placeholder image with the actual iframe
-            const template = document.createElement('template');
-            template.innerHTML = this.querySelector('noscript').innerHTML.trim();
-            this.iframe = template.content.firstChild;
+            // we want the placeholder image to be the same dimensions as the video,
+            // so store the width/height here
+            this.width = this.getAttribute('width') || LightningYoutube.DEFAULT_WIDTH;
+            this.height = this.getAttribute('height') || LightningYoutube.DEFAULT_HEIGHT;
 
-            // we don't need the noscript or iframe anymore
-            this.innerHTML = '';
+            // store a reference to the actual iframe that will replace the placeholder image
+            this.iframe = this.getIframeElementToBeInserted();
 
-            // pull the video id from the iframe src
-            const matches = LightningYoutube.REGEX.exec(this.iframe.src);
+            // pull the video id from the src
+            const matches = LightningYoutube.REGEX.exec(this.getAttribute('src'));
             this.videoId = matches[1];
-            this.width = this.iframe.width || LightningYoutube.DEFAULT_WIDTH;
-            this.height = this.iframe.height || LightningYoutube.DEFAULT_HEIGHT;
 
             this.attachShadow({mode: 'open'});
             this.shadowRoot.appendChild(this.template());
+        }
+
+        connectedCallback() {
+            this.addEventListener('click', this.insertIframe);
+        }
+
+        disconnectedCallback() {
+            this.removeEventListener('click', this.insertIframe);
         }
 
         template() {
@@ -81,55 +100,42 @@
             return cloned;
         }
 
-        /**
-         * We require a noscript tag because it will ensure that the iframe never attempts to begin rendering while
-         * still enabling us to use the full iframe tag that the developer would have used without lightning-youtube.
-         * Allowing a playable video with javascript disabled is not a goal of this project because the YouTube iframe
-         * will not work without javascript.
-         */
-        assertNoscriptIsOnlyChildNode() {
-            if (this.children.length !== 1 || this.children[0].tagName !== 'NOSCRIPT') {
-                throw new Error('You must supply a noscript tag. Please refer to the usage documentation for the lightning-youtube component.');
-            }
-        }
+        getIframeElementToBeInserted() {
+            // get the current lightning-youtube element and replace
+            // it with iframe, and we should have a valid youtube iframe embed
+            const template = document.createElement('template');
+            template.innerHTML = this.outerHTML.replace(/lightning-youtube/g, 'iframe').trim();
+            const iframe = template.content.firstChild;
 
-        assertValidYoutubeSource() {
-            if (!LightningYoutube.REGEX.test(this.innerHTML)) {
-                throw new Error('You must supply a valid YouTube src. Please refer to the usage documentation for the lightning-youtube component.');
-            }
-        }
+            // here, we ensure that autoplay is enabled because by the time we insert the
+            // iframe into the DOM the user will have already indicated that they want the video to play
+            const url = new URL(iframe.src);
+            url.searchParams.set('autoplay', '1');
+            iframe.src = url.toString();
 
-        connectedCallback() {
-            this.addEventListener('click', this.insertIframe);
+            // add our own class to the iframe
+            iframe.classList.add('lightning-youtube__iframe')
+            // ensure the iframe is the same dimensions as the placeholder image
+            iframe.width = this.width;
+            iframe.height = this.height;
+
+            return iframe;
         }
 
         insertIframe() {
             const container = this.shadowRoot.querySelector('.lightning-youtube');
-            container.innerHTML = this.getIframeStringWithAutoplayEnabled();
+            // clear all contents
+            container.innerHTML = '';
+            // insert the iframe into the DOM
+            container.appendChild(this.iframe);
             // we only need to insert the iframe once
             this.removeEventListener('click', this.insertIframe);
         }
 
-        /**
-         * We already have the original iframe element stored in this.iframe,
-         * but we need to replicate it with all attributes except using
-         * autoplay=1 whether it was developer-supplied or not.
-         */
-        getIframeStringWithAutoplayEnabled() {
-            // here, we ensure that autoplay is enabled because the user has already
-            // indicated that the want the video to play
-            const url = new URL(this.iframe.src);
-            url.searchParams.set('autoplay', '1');
-            this.iframe.src = url.toString();
-
-            // add our own class to the iframe
-            this.iframe.classList.add('lightning-youtube__iframe')
-
-            // ensure the iframe is the same dimensions as the placeholder image
-            this.iframe.width = this.width;
-            this.iframe.height = this.height;
-
-            return this.iframe.outerHTML;
+        assertValidYoutubeSource() {
+            if (!LightningYoutube.REGEX.test(this.getAttribute('src'))) {
+                throw new Error('You must supply a valid YouTube src. Please refer to the usage documentation for the lightning-youtube component.');
+            }
         }
     }
 
