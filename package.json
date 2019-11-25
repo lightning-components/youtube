@@ -1,5 +1,5 @@
 {
-  "name": "lightning-youtube",
+  "name": "@lightning-components/youtube",
   "version": "0.1.0",
   "description": "Lazy loads YouTube videos to improve page-speed performance",
   "main": "lightning-youtube.js",
