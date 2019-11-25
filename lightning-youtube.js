@@ -56,7 +56,7 @@
      */
     class LightningYoutube extends HTMLElement {
         // using static getter method syntax for backwards compatibility
-        static get REGEX() { return new RegExp('https:\/\/www\.youtube\.com\/embed\/([a-zA-Z0-9]+)'); }
+        static get REGEX() { return new RegExp('https:\/\/www\.youtube\.com\/embed\/([a-zA-Z0-9_]+)'); }
         static get DEFAULT_WIDTH() { return 560; }
         static get DEFAULT_HEIGHT() { return 315; }
 
