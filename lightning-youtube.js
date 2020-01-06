@@ -84,6 +84,8 @@ import "@lightning-components/image";
         }
 
         connectedCallback() {
+            this._upgradeProperty('disableNativeLazyloading');
+
             this.addEventListener('click', this.insertIframe);
         }
 
@@ -99,6 +101,10 @@ import "@lightning-components/image";
             image.width = this.width;
             image.height = this.height;
             image.src = `https://img.youtube.com/vi/${this.videoId}/maxresdefault.jpg`;
+
+            if (this.disableNativeLazyloading) {
+                image.setAttribute('disable-native-lazyloading', '');
+            }
 
             return cloned;
         }
@@ -139,6 +145,26 @@ import "@lightning-components/image";
             if (!LightningYoutube.REGEX.test(this.getAttribute('src'))) {
                 throw new Error('You must supply a valid YouTube src. Please refer to the usage documentation for the lightning-youtube component.');
             }
+        }
+
+        _upgradeProperty(prop) {
+            if (this.hasOwnProperty(prop)) {
+                let value = this[prop];
+                delete this[prop];
+                this[prop] = value;
+            }
+        }
+
+        set disableNativeLazyloading(value) {
+            if (!value) {
+                return this.removeAttribute('disable-native-lazyloading');
+            }
+
+            this.setAttribute('disable-native-lazyloading', value);
+        }
+
+        get disableNativeLazyloading() {
+            return this.hasAttribute('disable-native-lazyloading') && this.getAttribute('disable-native-lazyloading') !== 'false';
         }
     }
 
