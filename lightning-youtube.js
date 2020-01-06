@@ -1,3 +1,5 @@
+import "@lightning-components/image";
+
 (function() {
     /*
      *
@@ -39,7 +41,7 @@
 </style>
 
 <div class="lightning-youtube">
-    <img class="lightning-youtube__placeholder-image" loading="lazy" alt="Youtube Placeholder Image" />
+    <lightning-image class="lightning-youtube__placeholder-image" alt="Youtube Placeholder Image"></lightning-image>
     <div class="lightning-youtube__play-button"></div>
 </div>
 
